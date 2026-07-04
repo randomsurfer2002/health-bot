@@ -173,5 +173,3 @@ async function sendListMessage(to, bodyText, buttonText, items) {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Pure Code Interactive Bot online on port ${PORT}`));
-
-```
