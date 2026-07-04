@@ -1,8 +1,3 @@
-Here is the 100% clean, raw code. There is absolutely no conversational text or English prose inside this block.
-
-You can copy this entire block directly and replace everything inside your `server.js` file:
-
-```javascript
 const express = require('express');
 const axios = require('axios');
 const app = express();
