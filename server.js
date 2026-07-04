@@ -111,4 +111,15 @@ app.post('/webhook', async (req, res) => {
         }
 
         // Send response back to Twilio using TwiML XML format
-        const twiml = new tw
+        const twiml = new twilio.twiml.MessagingResponse();
+        twiml.message(replyMessage);
+        res.type('text/xml').send(twiml.toString());
+
+    } catch (err) {
+        console.error("Webhook processing failure:", err.message);
+        res.sendStatus(500);
+    }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Twilio-powered Health Bot online on port ${PORT}`));
