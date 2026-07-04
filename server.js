@@ -1,43 +1,6 @@
-Removing the city filter and embedding the deep health indicators directly into your code is a massive upgrade. It makes the transition seamless and instantly adds high value before the user hooks into an online appointment booking.
+Here is the 100% clean, raw code. There is absolutely no conversational text or English prose inside this block.
 
-Here is how the backend calculations work mathematically based on the raw metrics, followed by the complete node code to make this entire automation run on autopilot.
-
----
-
-## 🧮 The Health Parameter Formulas (Pure Code Calculations)
-
-Since you are only asking for **Weight, Height, Age, and Gender**, your code must run health equations to estimate the remaining required metrics:
-
-* **BMI:** Standard metric calculation:
-
-$$BMI = \frac{\text{Weight (kg)}}{(\text{Height (m)})^2}$$
-
-
-* **Ideal Weight:** Handled cleanly via the *Devine Formula*:
-
-$$\text{Male: } 50 + 2.3 \times \left(\frac{\text{Height (cm)}}{2.54} - 60\right)$$
-
-
-$$\text{Female: } 45.5 + 2.3 \times \left(\frac{\text{Height (cm)}}{2.54} - 60\right)$$
-
-
-* **Estimated BMR (Basal Metabolic Rate):** Calculated using the standard *Mifflin-St Jeor Equation*:
-
-$$\text{Male: } 10 \times \text{Weight (kg)} + 6.25 \times \text{Height (cm)} - 5 \times \text{Age} + 5$$
-
-
-$$\text{Female: } 10 \times \text{Weight (kg)} + 6.25 \times \text{Height (cm)} - 5 \times \text{Age} - 161$$
-
-
-* **Water Percentage & Visceral Fat:** Safely estimated linearly against age, biological sex, and calculated BMI boundaries.
-
----
-
-## 💻 The Updated Node.js Script (`server.js`)
-
-This complete code implementation removes the city validation step, handles sequential tracking, runs all the metabolic calculations, uses a native WhatsApp Interactive List for time and date slot picker choices, and returns an automated structural readout when a slot drops.
-
-Make sure you run `npm install express axios` in your directory before executing this script.
+You can copy this entire block directly and replace everything inside your `server.js` file:
 
 ```javascript
 const express = require('express');
@@ -46,7 +9,7 @@ const app = express();
 
 app.use(express.json());
 
-// Meta Credentials
+// Meta Credentials - Replace these with your actual IDs from the Meta Developer Console
 const ACCESS_TOKEN = 'YOUR_META_ACCESS_TOKEN';
 const PHONE_NUMBER_ID = 'YOUR_PHONE_NUMBER_ID';
 const VERIFY_TOKEN = 'your_secure_verify_token_here';
@@ -74,7 +37,6 @@ app.post('/webhook', async (req, res) => {
         const fromNumber = messageObject.from;
         let userMessage = "";
 
-        // Unpack Text Inputs or List/Button Selection Responses
         if (messageObject.type === 'text') {
             userMessage = messageObject.text.body.trim();
         } else if (messageObject.type === 'interactive') {
@@ -82,7 +44,6 @@ app.post('/webhook', async (req, res) => {
             userMessage = reply.button_reply?.title || reply.list_reply?.title || reply.list_reply?.id;
         }
 
-        // --- BOT STATE MACHINE ---
         if (!userSessions[fromNumber]) {
             userSessions[fromNumber] = { step: 'ASK_NAME' };
             await sendTextMessage(fromNumber, "Namaste! Welcome to your Free Digital Health Assessment. 📋\n\nLet's calculate your full profile. What is your full name?");
@@ -113,28 +74,23 @@ app.post('/webhook', async (req, res) => {
             const age = userSessions[fromNumber].age;
             const isMale = userSessions[fromNumber].gender.toLowerCase() === 'male';
 
-            // --- ADVANCED CALCULATIONS ---
             const heightInMeters = height / 100;
             const bmi = (weight / (heightInMeters * heightInMeters)).toFixed(1);
             
-            // Devine Formula
             const heightInInches = height / 2.54;
             const idealWeight = isMale 
                 ? (50 + 2.3 * (heightInInches - 60)).toFixed(1)
                 : (45.5 + 2.3 * (heightInInches - 60)).toFixed(1);
 
-            // Mifflin-St Jeor Equation
             const bmr = isMale
                 ? Math.round(10 * weight + 6.25 * height - 5 * age + 5)
                 : Math.round(10 * weight + 6.25 * height - 5 * age - 161);
 
-            // Statistical Parameter Estimations
             const visceralFat = Math.round((bmi * 0.4) + (age * 0.1) - (isMale ? 2 : 4));
             const waterPercentage = isMale 
                 ? (2.447 - (0.09156 * age) + (0.1074 * height) + (0.3362 * weight)) / weight * 100
                 : (2.097 + (0.1069 * height) + (0.2466 * weight)) / weight * 100;
 
-            // Store Values
             userSessions[fromNumber].weight = weight;
             userSessions[fromNumber].bmi = bmi;
             userSessions[fromNumber].idealWeight = idealWeight;
@@ -152,7 +108,6 @@ app.post('/webhook', async (req, res) => {
                                `To know more about your health indicators and systematically fix imbalances, please secure an online expert appointment.\n\n` +
                                `👇 *Choose your preferred date below:*`;
 
-            // Display interactive date options (Next 3 days)
             await sendListMessage(fromNumber, reportText, "Select Date Slot", [
                 { id: "date_today", title: "Today", description: "Book for today" },
                 { id: "date_tomorrow", title: "Tomorrow", description: "Book for tomorrow" },
@@ -160,7 +115,7 @@ app.post('/webhook', async (req, res) => {
             ]);
         } 
         else if (userSessions[fromNumber].step === 'PICK_DATE') {
-            userSessions[fromNumber].selectedDate = userMessage; // Captures row title text
+            userSessions[fromNumber].selectedDate = userMessage;
             userSessions[fromNumber].step = 'PICK_TIME';
 
             await sendListMessage(fromNumber, "Great! Now choose a preferred time slot window:", "Select Time Slot", [
@@ -173,24 +128,20 @@ app.post('/webhook', async (req, res) => {
             const finalTime = userMessage;
             const data = userSessions[fromNumber];
 
-            // Structuring final complete confirmation string
             const successText = `✅ *Appointment Form Confirmed!*\n\n` +
                                 `Your virtual consultation slot is locked for *${data.selectedDate}* during the *${finalTime}*.\n\n` +
                                 `Our team has processed your structural enquiry. Keep your phone near you; an expert will link with you shortly!`;
 
             await sendTextMessage(fromNumber, successText);
 
-            // LOGICAL DATA READOUT FOR YOUR TEAM
             console.log("\n==================================================");
-            console.log("📥 NEW HEALTH ENQUIRY RECEIVED SUCCESSFULY:");
+            console.log("📥 NEW HEALTH ENQUIRY RECEIVED SUCCESSFULLY:");
             console.log(`• Name: ${data.name}\n• Phone: +${fromNumber}\n• Gender: ${data.gender}\n• Age: ${data.age}`);
             console.log(`• BMI: ${data.bmi}\n• Ideal Weight: ${data.idealWeight} kg\n• BMR: ${data.bmr} kcal\n• Visceral Fat: ${data.visceralFat}\n• Water: ${data.waterPercentage}%`);
             console.log(`• APPOINTMENT TIME: ${data.selectedDate} (${finalTime})`);
             console.log("==================================================\n");
 
-            // Option: You can write a basic axios.post() request right here to push this object directly into Google Sheets or your CRM database pipeline.
-
-            delete userSessions[fromNumber]; // Flush storage instance
+            delete userSessions[fromNumber];
         }
 
         res.sendStatus(200);
@@ -200,7 +151,6 @@ app.post('/webhook', async (req, res) => {
     }
 });
 
-// --- HELPER WRAPPERS FOR OFFICIAL META API DISPATCH ---
 async function sendTextMessage(to, text) {
     await axios.post(`https://graph.facebook.com/v17.0/${PHONE_NUMBER_ID}/messages`, {
         messaging_product: "whatsapp", recipient_type: "individual", to, type: "text", text: { body: text }
