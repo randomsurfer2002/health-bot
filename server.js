@@ -5,9 +5,9 @@ const app = express();
 // Twilio sends data as URL-encoded form data
 app.use(express.urlencoded({ extended: false }));
 
-// Twilio Credentials from your Twilio Console
-const accountSid = process.env.TWILIO_ACCOUNT_SID || 'YOUR_TWILIO_ACCOUNT_SID';
-const authToken = process.env.TWILIO_AUTH_TOKEN || 'YOUR_TWILIO_AUTH_TOKEN';
+// Fully authenticated Twilio Credentials
+const accountSid = 'ACdafddd714cbe27cbbdf75887ef0432ca';
+const authToken = '739925363453cb8d979beaf5c33c8e7b';
 const client = twilio(accountSid, authToken);
 
 const userSessions = {};
@@ -51,7 +51,7 @@ app.post('/webhook', async (req, res) => {
             const age = userSessions[fromNumber].age;
             const isMale = userSessions[fromNumber].gender.toLowerCase() === 'male';
 
-            // Calculations
+            // Advanced Calculations
             const heightInMeters = height / 100;
             const bmi = (weight / (heightInMeters * heightInMeters)).toFixed(1);
             
