@@ -91,7 +91,7 @@ app.post('/webhook', async (req, res) => {
             userSessions[fromNumber].step = 'PICK_TIME';
             replyMessage = "Great! Now type your preferred time slot window (e.g., 11:00 AM, Morning, Evening):";
         } 
-       else if (userSessions[fromNumber].step === 'PICK_TIME') {
+        else if (userSessions[fromNumber].step === 'PICK_TIME') {
             const finalTime = userMessage;
             const data = userSessions[fromNumber];
 
@@ -99,11 +99,11 @@ app.post('/webhook', async (req, res) => {
                            `Your virtual consultation slot is locked for *${data.selectedDate}* during the *${finalTime}*.\n\n` +
                            `Our team has processed your structural enquiry. Keep your phone near you; an expert will link with you shortly!`;
 
-            // 📱 ALERT YOU IMMEDIATELY VIA WHATSAPP
+            // 📱 ALERT YOU IMMEDIATELY VIA WHATSAPP ONCE APPOINTMENT CONFIRMED
             try {
                 await client.messages.create({
-                    from: 'whatsapp:+14155238886', // Your Twilio number
-                    to: 'whatsapp:+919368891933',   // 👈 REPLACE THIS WITH YOUR REAL PERSONAL WHATSAPP NUMBER
+                    from: 'whatsapp:+14155238886', 
+                    to: 'whatsapp:+91XXXXXXXXXX',   // 👈 CHANGE THIS TO YOUR PERSONAL NUMBER (e.g. +919876543210)
                     body: `🚨 *NEW APPOINTMENT BOOKED!*\n\n` +
                           `• *Name:* ${data.name}\n` +
                           `• *Phone:* ${fromNumber.replace('whatsapp:', '')}\n` +
@@ -111,7 +111,7 @@ app.post('/webhook', async (req, res) => {
                           `• *BMI/BMR:* ${data.bmi} / ${data.bmr} kcal\n` +
                           `• *Scheduled for:* ${data.selectedDate} @ ${finalTime}`
                 });
-                console.log("Success: Admin notification text forwarded.");
+                console.log("Success: Admin notification forwarded.");
             } catch (smsErr) {
                 console.error("Admin notification failure:", smsErr.message);
             }
@@ -126,3 +126,17 @@ app.post('/webhook', async (req, res) => {
 
             delete userSessions[fromNumber];
         }
+
+        // Send response back to Twilio using TwiML XML format
+        const twiml = new twilio.twiml.MessagingResponse();
+        twiml.message(replyMessage);
+        res.type('text/xml').send(twiml.toString());
+
+    } catch (err) {
+        console.error("Webhook processing failure:", err.message);
+        res.sendStatus(500);
+    }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Twilio-powered Health Bot online on port ${PORT}`));
